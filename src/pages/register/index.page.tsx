@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button, Heading, MultiStep, Text, TextInput } from '@ignite-ui/react'
+import { AxiosError } from 'axios'
 import { useRouter } from 'next/router'
 import { ArrowRight } from 'phosphor-react'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { api } from 'src/lib/axios'
 import { z } from 'zod'
 import { Container, Form, FormError, Header } from './styles'
 
@@ -38,7 +40,19 @@ export default function Register() {
   }, [router.query?.username, setValue])
 
   async function handleRegister(data: registerFormData) {
-    console.log(data)
+    try {
+      await api.post('/users', {
+        name: data.name,
+        username: data.username,
+      })
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        alert(error.response.data.message)
+        return
+      }
+
+      console.error(error)
+    }
   }
 
   return (
@@ -49,9 +63,8 @@ export default function Register() {
           Precisamos de algumas informações para criar seu perfil! Ah, você pode
           editar essas informações depois.
         </Text>
+        <MultiStep size={4} currentStep={1} />
       </Header>
-
-      <MultiStep size={4} currentStep={1} />
 
       <Form as={'form'} onSubmit={handleSubmit(handleRegister)}>
         <label>
