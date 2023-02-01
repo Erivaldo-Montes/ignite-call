@@ -19,10 +19,11 @@ export function buildNextAuthOptions(
         authorization: {
           params: {
             scope:
-              'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar ',
+              'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/userinfo.profile',
           },
         },
         profile(profile: GoogleProfile) {
+          console.log(profile.picture)
           return {
             id: profile.sub,
             email: profile.email,
@@ -44,6 +45,14 @@ export function buildNextAuthOptions(
         }
 
         return true
+      },
+
+      // retorna todos os dados do usuário no session
+      async session({ session, user }) {
+        return {
+          ...session,
+          user,
+        }
       },
     },
   }
