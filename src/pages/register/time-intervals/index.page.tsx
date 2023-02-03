@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Button,
   Checkbox,
@@ -13,12 +14,34 @@ import { z } from 'zod'
 // import { api } from "../../../lib/axios"
 import { Container, Header } from '../styles'
 import {
+  FormErrors,
   IntervalBox,
   IntervalDay,
   IntervalInputs,
   IntervalItem,
   IntervalsContainer,
 } from './styles'
+
+const timeIntervalFormSchema = z.object({
+  intervals: z
+    .array(
+      z.object({
+        weekDay: z.number().min(0).max(6),
+        startTime: z.string(),
+        endTime: z.string(),
+        enabled: z.boolean(),
+      }),
+    )
+    .length(7)
+    .transform((intervals) =>
+      intervals.filter((interval) => interval.enabled === true),
+    )
+    .refine((intervals) => intervals.length > 0, {
+      message: 'Você precisa selecionar pelo menos um dia da semana',
+    }), // após a transformação dos dados tem que usar o refine para validações
+})
+
+type timeIntervalFormData = z.infer<typeof timeIntervalFormSchema>
 
 export default function TimeIntervals() {
   const {
@@ -28,6 +51,7 @@ export default function TimeIntervals() {
     control,
     formState: { isSubmitting, errors },
   } = useForm({
+    resolver: zodResolver(timeIntervalFormSchema),
     defaultValues: {
       intervals: [
         { weekDay: 0, enabled: false, startTime: '08:00', endTime: '18:00' },
@@ -50,6 +74,10 @@ export default function TimeIntervals() {
   const weekDays = getWeekDays()
 
   const intervals = watch('intervals')
+
+  async function handleSetTimeIntervals(data: timeIntervalFormData) {
+    console.log(data)
+  }
   return (
     <Container>
       <Header>
@@ -62,12 +90,12 @@ export default function TimeIntervals() {
         <MultiStep size={4} currentStep={2} />
       </Header>
 
-      <IntervalBox as="form" onSubmit={handleSubmit(handleSetTimeInterval)}>
+      <IntervalBox as="form" onSubmit={handleSubmit(handleSetTimeIntervals)}>
         <IntervalsContainer>
           {fields.map((field, index) => {
             return (
               <IntervalItem key={field.id}>
-            <IntervalDay>
+                <IntervalDay>
                   {/* permite que elementos não nativos do html altere campos do formulário */}
                   <Controller
                     name={`intervals.${index}.enabled`}
@@ -84,8 +112,8 @@ export default function TimeIntervals() {
                     }}
                   />
                   <Text>{weekDays[field.weekDay]}</Text>
-            </IntervalDay>
-            <IntervalInputs>
+                </IntervalDay>
+                <IntervalInputs>
                   <TextInput
                     size={'sm'}
                     type="time"
@@ -100,12 +128,16 @@ export default function TimeIntervals() {
                     disabled={intervals[index].enabled === false}
                     {...register(`intervals.${index}.endTime`)}
                   />
-            </IntervalInputs>
-          </IntervalItem>
+                </IntervalInputs>
+              </IntervalItem>
             )
           })}
         </IntervalsContainer>
-        <Button>
+
+        {errors.intervals && (
+          <FormErrors size={'sm'}>{errors.intervals.message}</FormErrors>
+        )}
+        <Button type="submit" disabled={isSubmitting}>
           proximo
           <ArrowRight />
         </Button>
