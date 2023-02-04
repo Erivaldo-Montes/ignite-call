@@ -9,6 +9,7 @@ import {
 } from '@ignite-ui/react'
 import { ArrowRight } from 'phosphor-react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { convertTimeStringToMinutes } from 'src/utils/convert-time-string-to-minutes'
 import { getWeekDays } from 'src/utils/get-week-day'
 import { z } from 'zod'
 // import { api } from "../../../lib/axios"
@@ -37,11 +38,37 @@ const timeIntervalFormSchema = z.object({
       intervals.filter((interval) => interval.enabled === true),
     )
     .refine((intervals) => intervals.length > 0, {
+      // após a transformação dos dados tem que usar o refine para validações
       message: 'Você precisa selecionar pelo menos um dia da semana',
-    }), // após a transformação dos dados tem que usar o refine para validações
+    })
+    .transform((intervals) => {
+      return intervals.map((interval) => {
+        return {
+          weekDay: interval.weekDay,
+          startTimeInMinutes: convertTimeStringToMinutes(interval.startTime),
+          endTimeInMinutes: convertTimeStringToMinutes(interval.endTime),
+        }
+      })
+    })
+    .refine(
+      (intervals) => {
+        return intervals.every(
+          (interval) =>
+            interval.endTimeInMinutes - 60 >= interval.startTimeInMinutes,
+        )
+      },
+      {
+        message:
+          'O horário de termino deve ser pelo menos 1h distante do início',
+      },
+    ),
 })
 
-type timeIntervalFormData = z.infer<typeof timeIntervalFormSchema>
+// tipo antes da tranformação
+type timeIntervalFormInput = z.input<typeof timeIntervalFormSchema>
+
+// tipo depois de tranformação
+type timeIntervalFormOutput = z.output<typeof timeIntervalFormSchema>
 
 export default function TimeIntervals() {
   const {
@@ -50,7 +77,7 @@ export default function TimeIntervals() {
     watch,
     control,
     formState: { isSubmitting, errors },
-  } = useForm({
+  } = useForm<timeIntervalFormInput>({
     resolver: zodResolver(timeIntervalFormSchema),
     defaultValues: {
       intervals: [
@@ -75,8 +102,9 @@ export default function TimeIntervals() {
 
   const intervals = watch('intervals')
 
-  async function handleSetTimeIntervals(data: timeIntervalFormData) {
-    console.log(data)
+  async function handleSetTimeIntervals(data: any) {
+    const formData = data as timeIntervalFormOutput
+    console.log(formData)
   }
   return (
     <Container>
