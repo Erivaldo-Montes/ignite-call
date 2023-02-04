@@ -9,6 +9,7 @@ import {
 } from '@ignite-ui/react'
 import { ArrowRight } from 'phosphor-react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { api } from 'src/lib/axios'
 import { convertTimeStringToMinutes } from 'src/utils/convert-time-string-to-minutes'
 import { getWeekDays } from 'src/utils/get-week-day'
 import { z } from 'zod'
@@ -103,8 +104,8 @@ export default function TimeIntervals() {
   const intervals = watch('intervals')
 
   async function handleSetTimeIntervals(data: any) {
-    const formData = data as timeIntervalFormOutput
-    console.log(formData)
+    const { intervals } = data as timeIntervalFormOutput
+    await api.post('/users/time-intervals', { intervals })
   }
   return (
     <Container>
