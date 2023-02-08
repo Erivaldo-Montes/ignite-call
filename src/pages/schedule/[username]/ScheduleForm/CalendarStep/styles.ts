@@ -6,4 +6,23 @@ export const Container = styled(Box, {
   display: 'grid',
   maxWidth: '100%',
   position: 'relative',
+
+  variants: {
+    isTimePicker: {
+      true: {
+        gridTemplateColumns: '1fr 280px',
+
+        '@media(max-width: 900px)': {
+          gridTemplateColumns: '1fr',
+        },
+      },
+
+      false: {
+        width: 540,
+        gridTemplateColumns: '1fr',
+      },
+    },
+  },
 })
+
+export const TimerPicker = styled('div', {})
