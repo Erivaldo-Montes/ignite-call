@@ -11,9 +11,14 @@ import {
   TimerPickerList,
 } from './styles'
 
-export function CalendarStep() {
+interface Availability {
+  possibleTimes: number[]
+  availableTimes: number[]
+}
+export function CalendarStep({ availableTimes, possibleTimes }: Availability) {
   // clicked date in calendar
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [availability, setAvailability] = useState<Availability | null>(null)
   const isDateSelected = !!selectedDate
 
   const router = useRouter()
@@ -36,7 +41,7 @@ export function CalendarStep() {
           date: dayjs(selectedDate).format('YYYY-MM-DD'),
         },
       })
-      .then((response) => console.log(response.data))
+      .then((response) => setAvailability(response.data))
   }, [selectedDate, username])
 
   return (
@@ -50,7 +55,17 @@ export function CalendarStep() {
             <span> {describedDate}</span>
           </TimerPickerHeader>
           <TimerPickerList>
-            <TimerPickerItem>08:00h</TimerPickerItem>
+            {availability?.possibleTimes.map((hour) => {
+              return (
+                <TimerPickerItem
+                  key={hour}
+                  disabled={!availability.availableTimes.includes(hour)}
+                >
+                  {String(hour).padStart(2, '0')}:00h
+                </TimerPickerItem>
+              )
+            })}
+
             <TimerPickerItem>09:00h</TimerPickerItem>
             <TimerPickerItem>10:00h</TimerPickerItem>
             <TimerPickerItem>11:00h</TimerPickerItem>
