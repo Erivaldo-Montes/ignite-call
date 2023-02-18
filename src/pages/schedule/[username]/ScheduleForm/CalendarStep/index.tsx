@@ -1,6 +1,7 @@
+import { useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Calendar } from 'src/components/Calendar'
 import { api } from 'src/lib/axios'
 import {
@@ -18,7 +19,7 @@ interface Availability {
 export function CalendarStep({ availableTimes, possibleTimes }: Availability) {
   // clicked date in calendar
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [availability, setAvailability] = useState<Availability | null>(null)
+
   const isDateSelected = !!selectedDate
 
   const router = useRouter()
@@ -28,21 +29,21 @@ export function CalendarStep({ availableTimes, possibleTimes }: Availability) {
   const describedDate = selectedDate
     ? dayjs(selectedDate).format('DD[ de ]MMMM')
     : null
+  const selectedDateWithoutTime = dayjs(selectedDate).format('YYYY-MM-DD')
 
-  useEffect(() => {
-    if (!selectedDate) {
-      return
-    }
-
-    // get available times
-    api
-      .get(`/users/${username}/availability`, {
+  const { data: availability } = useQuery<Availability>(
+    ['availability', selectedDateWithoutTime],
+    async () => {
+      const response = await api.get(`/users/${username}/availability`, {
         params: {
-          date: dayjs(selectedDate).format('YYYY-MM-DD'),
+          date: selectedDateWithoutTime,
         },
       })
-      .then((response) => setAvailability(response.data))
-  }, [selectedDate, username])
+
+      return response.data
+    },
+    { enabled: !!selectedDate },
+  )
 
   return (
     <Container isTimePicker={isDateSelected}>
@@ -65,17 +66,6 @@ export function CalendarStep({ availableTimes, possibleTimes }: Availability) {
                 </TimerPickerItem>
               )
             })}
-
-            <TimerPickerItem>09:00h</TimerPickerItem>
-            <TimerPickerItem>10:00h</TimerPickerItem>
-            <TimerPickerItem>11:00h</TimerPickerItem>
-            <TimerPickerItem>12:00h</TimerPickerItem>
-            <TimerPickerItem>13:00h</TimerPickerItem>
-            <TimerPickerItem>14:00h</TimerPickerItem>
-            <TimerPickerItem>15:00h</TimerPickerItem>
-            <TimerPickerItem>16:00h</TimerPickerItem>
-            <TimerPickerItem>17:00h</TimerPickerItem>
-            <TimerPickerItem>18:00h</TimerPickerItem>
           </TimerPickerList>
         </TimerPicker>
       )}
