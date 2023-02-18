@@ -23,7 +23,6 @@ export function buildNextAuthOptions(
           },
         },
         profile(profile: GoogleProfile) {
-          console.log(profile.picture)
           return {
             id: profile.sub,
             email: profile.email,
