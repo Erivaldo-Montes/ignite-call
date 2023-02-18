@@ -32,7 +32,7 @@ export default async function handler(
   const isPastDate = referenceDate.endOf('day').isBefore(new Date())
 
   if (isPastDate) {
-    return res.json({ availability: [] })
+    return res.json({ availability: [], possibleTimes: [] })
   }
 
   // check availability of user
@@ -44,7 +44,7 @@ export default async function handler(
   })
 
   if (!userAvailability) {
-    return res.json({ availability: [] })
+    return res.json({ availability: [], possibleTimes: [] })
   }
 
   // convert to hour
