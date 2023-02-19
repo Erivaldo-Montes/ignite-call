@@ -8,7 +8,7 @@ export const Container = styled(Box, {
   position: 'relative',
 
   variants: {
-    isTimePicker: {
+    isTimePickerOpen: {
       true: {
         gridTemplateColumns: '1fr 280px',
 
@@ -25,7 +25,7 @@ export const Container = styled(Box, {
   },
 })
 
-export const TimerPicker = styled('div', {
+export const TimePicker = styled('div', {
   border: '1px solid $gray600',
   padding: '$6 $6 0',
   overflowY: 'scroll',
@@ -37,7 +37,7 @@ export const TimerPicker = styled('div', {
   width: 280,
 })
 
-export const TimerPickerHeader = styled(Text, {
+export const TimePickerHeader = styled(Text, {
   fontWeight: '$medium',
 
   span: {
@@ -45,7 +45,7 @@ export const TimerPickerHeader = styled(Text, {
   },
 })
 
-export const TimerPickerList = styled('div', {
+export const TimePickerList = styled('div', {
   display: 'grid',
   marginTop: '$3',
   gridTemplateColumns: '1fr',
@@ -56,7 +56,7 @@ export const TimerPickerList = styled('div', {
   },
 })
 
-export const TimerPickerItem = styled('button', {
+export const TimePickerItem = styled('button', {
   border: 0,
   backgroundColor: '$gray600',
   padding: '$2 0',
