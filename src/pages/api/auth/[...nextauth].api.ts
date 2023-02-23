@@ -10,7 +10,7 @@ export function buildNextAuthOptions(
   return {
     // adpter personalizado
     adapter: PrismaAdapter(req, res),
-
+    secret: process.env.NEXTAUTH_SECRET,
     // Configure one or more authentication providers
     providers: [
       GoogleProvider({
